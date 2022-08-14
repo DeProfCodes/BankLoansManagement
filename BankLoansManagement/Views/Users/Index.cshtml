@@ -37,6 +37,7 @@
                 <th></th>
                 <th></th>
                 <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -53,13 +54,16 @@
                         @Html.DisplayFor(modelItem => user.IdNumber)
                     </td>
                     <td>
-                        <input type="button" class="btn btn-success" value="Details" onclick="window.location='@Url.Action("Details", "Users", new { id = user.UserId })'" />
+                        <input type="button" class="btn btn-success" value="Details User" onclick="window.location='@Url.Action("Details", "Users", new { id = user.UserId })'" />
                     </td>
                     <td>
-                        <input type="button" class="btn btn-primary" value="Edit" onclick="window.location='@Url.Action("Edit", "Users", new { id = user.UserId })'" />
+                        <input type="button" class="btn btn-primary" value="Edit User" onclick="window.location='@Url.Action("Edit", "Users", new { id = user.UserId })'" />
                     </td>
                     <td>
-                        <input type="button" class="btn btn-danger" value="Delete" onclick="window.location='@Url.Action("Delete", "Users", new { id = user.UserId })'" />
+                        <input type="button" class="btn btn-danger" value="Delete User" onclick="window.location='@Url.Action("Delete", "Users", new { id = user.UserId })'" />
+                    </td>
+                    <td>
+                        <input type="button" class="btn btn-secondary" value="Create Loan" onclick="window.location='@Url.Action("Create", "Loans", new { userId = user.UserId })'" />
                     </td>
                 </tr>
             }

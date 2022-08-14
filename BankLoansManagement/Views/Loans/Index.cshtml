@@ -1,4 +1,4 @@
-﻿@model BankLoansManagement.ViewModels.UserLoanViewModel
+﻿@model List<BankLoansManagement.ViewModels.UserLoanViewModel>
 
 @{
   ViewData["Title"] = "Index";
@@ -7,7 +7,8 @@
 <h1>Index</h1>
 
 <p>
-  <input type="button" class="btn btn-success" value="Create new loan" onclick="window.location='@Url.Action("Create", "Loans")'" />
+  <input type="button" class="btn btn-success" value="Create new loan" onclick="window.location='@Url.Action("Create", "Loans", new { userId = -1})'" />
+  <input type="button" class="btn btn-primary" value="View Users" onclick="window.location='@Url.Action("Index", "Users")'" />
 </p>
 
 <form asp-controller="Loans" asp-action="Index" method="get">
@@ -24,6 +25,15 @@
 <table class="table">
   <thead>
     <tr>
+      <th>
+        Firstname
+      </th>
+      <th>
+        Lastname
+      </th>
+      <th>
+        ID Number
+      </th>
       <th>
         Amount
       </th>
@@ -43,28 +53,37 @@
     </tr>
   </thead>
   <tbody>
-    @foreach (var item in Model.userLoans)
+    @foreach (var item in Model)
     {
       <tr>
         <td>
-          R @Html.DisplayFor(modelItem => item.Amount)
+          @Html.DisplayFor(modelItem => item.User.FirstName)
         </td>
         <td>
-          @Html.DisplayFor(modelItem => item.Term)
+          @Html.DisplayFor(modelItem => item.User.LastName)
         </td>
         <td>
-          @Html.DisplayFor(modelItem => item.InterestRate) %
+          @Html.DisplayFor(modelItem => item.User.IdNumber)
         </td>
         <td>
-          @Html.DisplayFor(modelItem => item.Type)
+          R @Html.DisplayFor(modelItem => item.Loan.Amount)
         </td>
         <td>
-          R @Html.DisplayFor(modelItem => item.Total)
+          @Html.DisplayFor(modelItem => item.Loan.Term)
         </td>
         <td>
-          <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-          <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-          <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+          @Html.DisplayFor(modelItem => item.Loan.InterestRate) %
+        </td>
+        <td>
+          @Html.DisplayFor(modelItem => item.Loan.Type)
+        </td>
+        <td>
+          R @Html.DisplayFor(modelItem => item.Loan.Total)
+        </td>
+        <td>
+          <a asp-action="Edit" asp-route-id="@item.Loan.Id">Edit</a> |
+          <a asp-action="Details" asp-route-id="@item.Loan.Id">Details</a> |
+          <a asp-action="Delete" asp-route-id="@item.Loan.Id">Delete</a>
         </td>
       </tr>
     }

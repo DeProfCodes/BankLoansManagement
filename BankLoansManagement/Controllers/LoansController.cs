@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using BankLoansManagement.Helpers;
+using System.Collections.Generic;
 
 namespace BankLoansManagement.Controllers
 {
@@ -22,13 +23,21 @@ namespace BankLoansManagement.Controllers
         public async Task<ActionResult> Index()
         {
             var loans = await _context.Loans.ToListAsync();
+            var allUsers = await _context.Users.ToListAsync();
+
+            var userLoansVm = new List<UserLoanViewModel>();
+
+            foreach(var loan in loans)
+            {
+                var userLoan = new UserLoanViewModel
+                {
+                    Loan = loan,
+                    User = allUsers.FirstOrDefault(u => u.UserId == loan.UserId)
+                };
+                userLoansVm.Add(userLoan);  
+            }
             
-            var userLoanVM = new UserLoanViewModel 
-            { 
-                userLoans = loans 
-            };
-            
-            return View(userLoanVM);
+            return View(userLoansVm);
         }
 
         // Search for loans
@@ -36,17 +45,25 @@ namespace BankLoansManagement.Controllers
         public async Task<IActionResult> Index(string searchString)
         {
             var loans = await _context.Loans.ToListAsync();
+            var allUsers = await _context.Users.ToListAsync();
+
             if (!string.IsNullOrEmpty(searchString))
             {
                 loans = loans.Where(l => l.Type.ToLower().Contains(searchString.ToLower())).ToList();
             }
 
-            var userLoansVM = new UserLoanViewModel
-            {
-                userLoans = loans
-            };
+            var userLoansVm = new List<UserLoanViewModel>();
 
-            return View(userLoansVM);
+            foreach (var loan in loans)
+            {
+                var userLoan = new UserLoanViewModel
+                {
+                    Loan = loan,
+                    User = allUsers.FirstOrDefault(u => u.UserId == loan.UserId)
+                };
+                userLoansVm.Add(userLoan);
+            }
+            return View(userLoansVm);
         }
 
         // GET: LoansController/Details/5
@@ -57,18 +74,37 @@ namespace BankLoansManagement.Controllers
         }
 
         // GET: LoansController/Create
-        public ActionResult Create()
+        public ActionResult Create(int userId)
         {
-            return View();
+            var userLoan = new UserLoanViewModel
+            { 
+                User = new User
+                {
+                    UserId = userId
+                }
+            };
+            return View(userLoan);
         }
 
         // POST: LoansController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(Loan loan)
+        public async Task<ActionResult> Create(UserLoanViewModel newLoanApplication)
         {
             try
             {
+                var loan = newLoanApplication.Loan;
+                var user = newLoanApplication.User;
+
+                //New loan for new user => Create new user in db first
+                if (loan.UserId == -1)
+                {
+                    _context.Add(user);
+                    await _context.SaveChangesAsync();
+
+                    loan.UserId = (await _context.Users.FirstOrDefaultAsync(u => u.IdNumber == user.IdNumber)).UserId;
+                }
+
                 if(loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Personal))
                 {
                     loan.Total = loan.Amount + loan.Amount * 0.25; 
@@ -140,10 +176,15 @@ namespace BankLoansManagement.Controllers
         // POST: LoansController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(int id, IFormCollection collection)
         {
             try
             {
+                var loan = await _context.Loans.FirstOrDefaultAsync(u => u.Id == id);
+                _context.Remove(loan);
+
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             catch

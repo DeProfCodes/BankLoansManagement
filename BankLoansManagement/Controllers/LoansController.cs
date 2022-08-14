@@ -38,7 +38,7 @@ namespace BankLoansManagement.Controllers
             var loans = await _context.Loans.ToListAsync();
             if (!string.IsNullOrEmpty(searchString))
             {
-                loans = loans.Where(l => l.Type.Contains(searchString)).ToList();
+                loans = loans.Where(l => l.Type.ToLower().Contains(searchString.ToLower())).ToList();
             }
 
             var userLoansVM = new UserLoanViewModel
@@ -107,6 +107,18 @@ namespace BankLoansManagement.Controllers
         {
             try
             {
+                if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Personal))
+                {
+                    loan.Total = loan.Amount + loan.Amount * 0.25;
+                }
+                else if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Home))
+                {
+                    loan.Total = loan.Amount + loan.Amount * 0.10;
+                }
+                else if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Vehicle))
+                {
+                    loan.Total = loan.Amount + loan.Amount * 0.15;
+                }
                 _context.Update(loan);
                 await _context.SaveChangesAsync();
 

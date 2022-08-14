@@ -34,7 +34,7 @@ namespace BankLoansManagement.Controllers
             var users = await _context.Users.ToListAsync();
             if (!string.IsNullOrEmpty(searchString))
             {
-                users = users.Where(s => s.FirstName.Contains(searchString)).ToList();
+                users = users.Where(s => s.FirstName.ToLower().Contains(searchString.ToLower())).ToList();
             }
 
             var usersVM = new UserViewModel

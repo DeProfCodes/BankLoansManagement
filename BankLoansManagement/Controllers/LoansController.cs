@@ -47,11 +47,6 @@ namespace BankLoansManagement.Controllers
             var loans = await _context.Loans.ToListAsync();
             var allUsers = await _context.Users.ToListAsync();
 
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                loans = loans.Where(l => l.Type.ToLower().Contains(searchString.ToLower())).ToList();
-            }
-
             var userLoansVm = new List<UserLoanViewModel>();
 
             foreach (var loan in loans)
@@ -63,6 +58,13 @@ namespace BankLoansManagement.Controllers
                 };
                 userLoansVm.Add(userLoan);
             }
+            
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                userLoansVm = userLoansVm.Where(ul => (ul.User.FirstName.ToLower().Contains(searchString.ToLower()) || 
+                                                       ul.User.LastName.ToLower().Contains(searchString.ToLower()))).ToList();
+            }
+
             return View(userLoansVm);
         }
 

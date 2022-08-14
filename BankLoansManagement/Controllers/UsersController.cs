@@ -95,6 +95,7 @@ namespace BankLoansManagement.Controllers
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
                 user.FirstName = newUserInfo.FirstName;
                 user.LastName = newUserInfo.LastName;
+                user.IdNumber = newUserInfo.IdNumber;
 
                 _context.Update(user);
                 await _context.SaveChangesAsync();

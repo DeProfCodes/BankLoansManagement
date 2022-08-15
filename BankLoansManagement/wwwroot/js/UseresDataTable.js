@@ -50,7 +50,7 @@ function DeleteUser(url)
 {
   swal({
     title: "Are you sure?",
-    text: "Once User is deleted, you will not be able to recover",
+    text: "Loans associated with this user will be deleted!",
     icon: "warning",
     buttons: true,
     dangerMode: true

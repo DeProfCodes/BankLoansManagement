@@ -17,18 +17,23 @@ namespace BankLoansManagement.ViewModels
         [Display(Name = "Client ID Number")]
         public string ClientIdNumber{ get; set; }
 
+        [Range(1, int.MaxValue, ErrorMessage = "Please enter a value bigger than 0")]
         [Display(Name = "Loan Amount")]
         public double LoanAmount { get; set; }
 
+        [Required]
         [Display(Name = "Loan Type")]
         public string LoanType{ get; set; }
 
+        [Range(1, int.MaxValue, ErrorMessage = "Please enter a value bigger than 0")]
         [Display(Name = "Loan Term")]
         public int LoanTerm { get; set; }
 
+        [Range(1, int.MaxValue, ErrorMessage = "Please enter a value bigger than 0")]
         [Display(Name = "Loan Interest Rate")]
         public double LoanInterestRate { get; set; }
 
+        [Range(1, int.MaxValue, ErrorMessage = "Please enter a value bigger than 0")]
         [Display(Name = "Loan Total Amount")]
         public double LoanTotalAmount { get; set; }
     }

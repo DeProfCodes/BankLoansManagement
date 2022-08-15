@@ -8,6 +8,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using BankLoansManagement.Helpers;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
+using System;
 
 namespace BankLoansManagement.Controllers
 {
@@ -15,9 +18,12 @@ namespace BankLoansManagement.Controllers
     {
 
         private readonly BankLoanContext _context;
-        public LoansController(BankLoanContext context)
+        private readonly ILogger<UsersController> _logger;
+
+        public LoansController(BankLoanContext context, ILogger<UsersController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public ActionResult Index()
@@ -28,88 +34,79 @@ namespace BankLoansManagement.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var loans = await _context.Loans.ToListAsync();
-            var allUsers = await _context.Users.ToListAsync();
-
-            var userLoansVm = new List<UserLoanViewModel>();
-
-            foreach (var loan in loans)
+            try
             {
-                var user = allUsers.FirstOrDefault(u => u.UserId == loan.UserId);
-                if (user != null)
+                var loans = await _context.Loans.ToListAsync();
+                var allUsers = await _context.Users.ToListAsync();
+
+                var userLoansVm = new List<UserLoanViewModel>();
+
+                foreach (var loan in loans)
                 {
-                    var userLoan = new UserLoanViewModel
+                    var user = allUsers.FirstOrDefault(u => u.UserId == loan.UserId);
+                    if (user != null)
                     {
-                        LoanId = loan.Id,
-                        LoanAmount = loan.Amount,
-                        LoanInterestRate = loan.InterestRate,
-                        LoanType = loan.Type,
-                        LoanTotalAmount = loan.Total,
-                        ClientFirstName = user.FirstName,
-                        ClientLastName = user.LastName,
-                        ClientIdNumber = user.IdNumber
-                    };
-                    userLoansVm.Add(userLoan);
+                        var userLoan = new UserLoanViewModel
+                        {
+                            LoanId = loan.Id,
+                            LoanAmount = loan.Amount,
+                            LoanInterestRate = loan.InterestRate,
+                            LoanType = loan.Type,
+                            LoanTotalAmount = loan.Total,
+                            ClientFirstName = user.FirstName,
+                            ClientLastName = user.LastName,
+                            ClientIdNumber = user.IdNumber
+                        };
+                        userLoansVm.Add(userLoan);
+                    }
                 }
+                return Json(new { data = userLoansVm });
             }
-            return Json(new { data = userLoansVm });
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllFiltered(string loanType)
-        {
-            var loans = await _context.Loans.ToListAsync();
-
-            loans = loans.Where(l => l.Type.ToLower().Contains(loanType)).ToList();
-
-            var allUsers = await _context.Users.ToListAsync();
-
-            var userLoansVm = new List<UserLoanViewModel>();
-
-            foreach (var loan in loans)
+            catch(Exception e)
             {
-                var user = allUsers.FirstOrDefault(u => u.UserId == loan.UserId);
-                if (user != null)
-                {
-                    var userLoan = new UserLoanViewModel
-                    {
-                        LoanId = loan.Id,
-                        LoanAmount = loan.Amount,
-                        LoanInterestRate = loan.InterestRate,
-                        LoanType = loan.Type,
-                        LoanTotalAmount = loan.Total,
-                        ClientFirstName = user.FirstName,
-                        ClientLastName = user.LastName,
-                        ClientIdNumber = user.IdNumber
-                    };
-                    userLoansVm.Add(userLoan);
-                }
+                _logger.Log(LogLevel.Error, $"Failed to fetch all loans, error={e.Message}", e);
+                return Json(new { data = new List<UserLoanViewModel>()});
             }
-            return Json(new { data = userLoansVm });
         }
 
         [HttpGet]
         public async Task<IActionResult> GetTotals()
         {
-            var loans = await _context.Loans.ToListAsync();
-            
-            var totals = loans.Sum(l => l.Total);
-            var amounts = loans.Sum(l => l.Amount);
-            var fees = totals - amounts;
-
-            var loanTotalsViewModel = new LoanTotalsVieweModel
+            try
             {
-                LoanTotals = totals,
-                LoanFeesTotal = fees
-            };
-                
-            return Json(new { data = loanTotalsViewModel});
+                var loans = await _context.Loans.ToListAsync();
+
+                var totals = loans.Sum(l => l.Total);
+                var amounts = loans.Sum(l => l.Amount);
+                var fees = totals - amounts;
+
+                var loanTotalsViewModel = new LoanTotalsVieweModel
+                {
+                    LoanTotals = totals,
+                    LoanFeesTotal = fees
+                };
+
+                return Json(new { data = loanTotalsViewModel });
+            }
+            catch(Exception e)
+            {
+                _logger.Log(LogLevel.Error, $"Failed to fetch loan totals, error={e.Message}", e);
+                return Json(new { data = new LoanTotalsVieweModel { LoanFeesTotal = 0, LoanTotals = 0 }});
+            }
         }
         // GET: LoansController/Details/5
         public async Task<ActionResult> Details(int id)
         {
-            var loan = await _context.Loans.FirstOrDefaultAsync(u => u.Id == id);
-            return View(loan);
+            try
+            {
+                var loan = await _context.Loans.FirstOrDefaultAsync(u => u.Id == id);
+                return View(loan);
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, $"Failed to fetch loan details for loanId={id}, error={e.Message}", e);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // GET: LoansController/Create
@@ -122,11 +119,30 @@ namespace BankLoansManagement.Controllers
             return View(userLoan);
         }
 
+        private double GetLoanTotal(Loan loan)
+        {
+            double total = 0;
+            if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Personal))
+            {
+                total = loan.Amount + loan.Amount * 0.25;
+            }
+            else if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Home))
+            {
+                total = loan.Amount + loan.Amount * 0.10;
+            }
+            else if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Vehicle))
+            {
+                total = loan.Amount + loan.Amount * 0.15;
+            }
+            return total;
+        }
+
         // POST: LoansController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(UserLoanViewModel newLoanApplication)
         {
+            IDbContextTransaction transaction = _context.Database.BeginTransaction();
             try
             {
                 var loan = new Loan
@@ -138,6 +154,7 @@ namespace BankLoansManagement.Controllers
                     Type = newLoanApplication.LoanType
                 };
 
+                var loanUser = new User();
                 //New loan for new user => Create new user in db first
                 if (loan.UserId == -1)
                 {
@@ -148,32 +165,30 @@ namespace BankLoansManagement.Controllers
                         IdNumber = newLoanApplication.ClientIdNumber
                     };
 
+                    loanUser = user;
+                    
                     _context.Add(user);
                     await _context.SaveChangesAsync();
 
-                    loan.UserId = (await _context.Users.FirstOrDefaultAsync(u => u.IdNumber == user.IdNumber)).UserId;
+                    loanUser = await _context.Users.FirstOrDefaultAsync(u => u.IdNumber == user.IdNumber);
+                    loan.UserId = loanUser.UserId;
                 }
 
-                if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Personal))
-                {
-                    loan.Total = loan.Amount + loan.Amount * 0.25;
-                }
-                else if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Home))
-                {
-                    loan.Total = loan.Amount + loan.Amount * 0.10;
-                }
-                else if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Vehicle))
-                {
-                    loan.Total = loan.Amount + loan.Amount * 0.15;
-                }
+                loan.Total = GetLoanTotal(loan);
 
                 _context.Add(loan);
                 await _context.SaveChangesAsync();
 
+                _logger.Log(LogLevel.Debug, $"A new loan of type={loan.Type} was created for user: userId={loanUser.UserId}, FirstName={loanUser.FirstName}, LastName={loanUser.LastName}, ID Number={loanUser.IdNumber} was created successfuly");
+                transaction.Commit();       //All good: Commit to DB
+
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch(Exception e)
             {
+                transaction.Rollback();    //Undo DB transactions
+                _logger.Log(LogLevel.Error, $"A loan of type={newLoanApplication.LoanType}, amount={newLoanApplication.LoanAmount} could not be created, error = {e.Message}", e);
+
                 return View();
             }
         }
@@ -190,42 +205,33 @@ namespace BankLoansManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(int id, Loan loan)
         {
+            IDbContextTransaction transaction = _context.Database.BeginTransaction();
             try
             {
-                if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Personal))
-                {
-                    loan.Total = loan.Amount + loan.Amount * 0.25;
-                }
-                else if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Home))
-                {
-                    loan.Total = loan.Amount + loan.Amount * 0.10;
-                }
-                else if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Vehicle))
-                {
-                    loan.Total = loan.Amount + loan.Amount * 0.15;
-                }
+                loan.Total = GetLoanTotal(loan);
+
                 _context.Update(loan);
                 await _context.SaveChangesAsync();
 
+                _logger.Log(LogLevel.Debug, $"Loan details of loan of loanId={loan.Id}, for userId={loan.UserId}, was edited successfuly");
+                transaction.Commit();
+
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch(Exception e)
             {
+                transaction.Rollback();    //Undo DB transactions
+                _logger.Log(LogLevel.Error, $"A loan of loanId={loan.Id}, amount={loan.Amount} for userId={loan.UserId} could not be edited, error = {e.Message}", e);
+
                 return View();
             }
         }
-
-        //// GET: LoansController/Delete/5
-        //public async Task<ActionResult> Delete(int id)
-        //{
-        //    var loan = await _context.Loans.FirstOrDefaultAsync(u => u.Id == id);
-        //    return View(loan);
-        //}
 
         // POST: LoansController/Delete/5
         [HttpDelete]
         public async Task<ActionResult> Delete(int id)
         {
+            IDbContextTransaction transaction = _context.Database.BeginTransaction();
             try
             {
                 var loan = await _context.Loans.FirstOrDefaultAsync(u => u.Id == id);
@@ -233,10 +239,16 @@ namespace BankLoansManagement.Controllers
 
                 await _context.SaveChangesAsync();
 
+                _logger.Log(LogLevel.Debug, $"Loan details of loan of loanId={id}, was deleted successfuly");
+                transaction.Commit();
+
                 return Json(new { success = true, message = "Delete successful" });
             }
-            catch
+            catch(Exception e)
             {
+                transaction.Rollback();    //Undo DB transactions
+                _logger.Log(LogLevel.Error, $"A loan of loanId={id} could not be deleted, error = {e.Message}", e);
+
                 return Json(new { success = true, message = "Delete failed" });
             }
         }

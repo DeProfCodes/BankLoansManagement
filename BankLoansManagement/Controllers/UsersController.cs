@@ -6,19 +6,24 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using BankLoansManagement.Models;
+using Microsoft.EntityFrameworkCore.Storage;
+using System;
+using Microsoft.Extensions.Logging;
 
 namespace BankLoansManagement.Controllers
 {
     public class UsersController : Controller
     {
         private readonly BankLoanContext _context;
-        public UsersController(BankLoanContext context)
+        private readonly ILogger<UsersController> _logger;
+        public UsersController(BankLoanContext context, ILogger<UsersController> logger)
         {
             _context = context;
+            _logger = logger;   
         }
 
         // GET: UsersController
-        public async Task<ActionResult> Index()
+        public ActionResult Index()
         {
             return View();
         }
@@ -34,8 +39,16 @@ namespace BankLoansManagement.Controllers
         // GET: UsersController/Details/5
         public async Task<ActionResult> Details(int id)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
-            return View(user);
+            try
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+                return View(user);
+            }
+            catch(Exception e)
+            {
+                _logger.Log(LogLevel.Error, $"Failed to fetch user details for userId={id}, error={e.Message}", e);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // GET: UsersController/Create
@@ -55,11 +68,14 @@ namespace BankLoansManagement.Controllers
                 {
                     _context.Add(user);
                     await _context.SaveChangesAsync();
+
+                    _logger.Log(LogLevel.Debug, $"A create new user Firstname={user.FirstName}, Lastname={user.LastName}, was created successfully");
                 }
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log(LogLevel.Error, $"Failed to create new user Firstname={user.FirstName}, Lastname={user.LastName}, error={e.Message}", e);
                 return View();
             }
         }
@@ -67,8 +83,20 @@ namespace BankLoansManagement.Controllers
         // GET: UsersController/Edit/5
         public async Task<ActionResult> Edit(int id)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
-            return View(user);
+            try
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+                if (user != null)
+                {
+                    return View(user);
+                }
+                return View(new User());
+            }
+            catch(Exception ex) 
+            {
+                _logger.Log(LogLevel.Error, $"Unexpected error occured, error={ex.Message}", ex);
+                return View(new User());
+            }
         }
 
         // POST: UsersController/Edit/5
@@ -76,15 +104,21 @@ namespace BankLoansManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(int id, User user)
         {
+            IDbContextTransaction transaction = _context.Database.BeginTransaction();
             try
             {
                 _context.Update(user);
                 await _context.SaveChangesAsync();
 
+                _logger.Log(LogLevel.Debug, $"UserId={user.UserId}, FirstName={user.FirstName}, LastName={user.LastName} was edited successfuly");
+                transaction.Commit();       //All good: Commit to DB
+
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log(LogLevel.Error, $"Editing UserId = {user.UserId}, FirstName={user.FirstName}, LastName={user.LastName}, has failed, error = {e.Message}", e);
+                transaction.Rollback();    //Undo DB transactions
                 return View();
             }
         }
@@ -93,18 +127,27 @@ namespace BankLoansManagement.Controllers
         [HttpDelete]
         public async Task<ActionResult> Delete(int id)
         {
+            IDbContextTransaction transaction = _context.Database.BeginTransaction();
             try
             {
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+                var userLoans = await _context.Loans.Where(l=> l.UserId==user.UserId).ToListAsync();
                 
                 _context.Remove(user);
+                _context.RemoveRange(userLoans);
                 await _context.SaveChangesAsync();
 
+                _logger.Log(LogLevel.Debug, $"UserId={id}, FirstName={user.FirstName}, LastName={user.LastName} was deleted successfuly");
+                transaction.Commit();       //All good: Commit to DB
+                
                 return Json(new { success = true, message = "Delete successful" });
             }
-            catch
+            catch(Exception e)
             {
-                return Json(new { success = true, message = "Delete failed" });
+                transaction.Rollback();    //Undo DB transactions
+                _logger.Log(LogLevel.Error, $"Delete UserId = {id} failed, error = {e.Message}", e);
+                
+                return Json(new { success = true, message = "Delete failed, something went wrong" });
             }
         }
     }

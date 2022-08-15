@@ -29,7 +29,6 @@ $(document).ready(function ()
   var table = $('#DT_load').DataTable();
   $('input:checkbox').on('change', function ()
   {
-    console.log(table);
     table.draw();
   });
 });

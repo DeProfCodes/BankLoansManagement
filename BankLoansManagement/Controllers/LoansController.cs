@@ -54,35 +54,7 @@ namespace BankLoansManagement.Controllers
             }
             return Json(new { data = userLoansVm });
         }
-        /*
-        // Search for loans
-        [HttpGet]
-        public async Task<IActionResult> Index(string searchString)
-        {
-            var loans = await _context.Loans.ToListAsync();
-            var allUsers = await _context.Users.ToListAsync();
-
-            var userLoansVm = new List<UserLoanViewModel>();
-
-            foreach (var loan in loans)
-            {
-                var userLoan = new UserLoanViewModel
-                {
-                    Loan = loan,
-                    User = allUsers.FirstOrDefault(u => u.UserId == loan.UserId)
-                };
-                userLoansVm.Add(userLoan);
-            }
-            
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                userLoansVm = userLoansVm.Where(ul => (ul.User.FirstName.ToLower().Contains(searchString.ToLower()) || 
-                                                       ul.User.LastName.ToLower().Contains(searchString.ToLower()))).ToList();
-            }
-
-            return View(userLoansVm);
-        }
-        */
+       
         // GET: LoansController/Details/5
         public async Task<ActionResult> Details(int id)
         {
@@ -193,17 +165,16 @@ namespace BankLoansManagement.Controllers
             }
         }
 
-        // GET: LoansController/Delete/5
-        public async Task<ActionResult> Delete(int id)
-        {
-            var loan = await _context.Loans.FirstOrDefaultAsync(u => u.Id == id);
-            return View(loan);
-        }
+        //// GET: LoansController/Delete/5
+        //public async Task<ActionResult> Delete(int id)
+        //{
+        //    var loan = await _context.Loans.FirstOrDefaultAsync(u => u.Id == id);
+        //    return View(loan);
+        //}
 
         // POST: LoansController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Delete(int id, IFormCollection collection)
+        [HttpDelete]
+        public async Task<ActionResult> Delete(int id)
         {
             try
             {
@@ -212,11 +183,11 @@ namespace BankLoansManagement.Controllers
 
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                return Json(new { success = true, message = "Delete successful" });
             }
             catch
             {
-                return View();
+                return Json(new { success = true, message = "Delete failed" });
             }
         }
     }

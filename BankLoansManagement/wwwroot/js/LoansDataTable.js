@@ -32,7 +32,7 @@ function loadDataTable()
                         </a>
                         &nbsp;
                         <a class='btn btn-danger text-white' style='cursor:pointer; width:70px;'
-                            onclick=Delete('/Loans/Delete?id='+${data})>
+                            onclick=DeleteLoan('/Loans/Delete?id='+${data})>
                             Delete
                         </a>
                         </div>`;
@@ -46,11 +46,11 @@ function loadDataTable()
   });
 }
 
-function Delete(url)
+function DeleteLoan(url)
 {
   swal({
     title: "Are you sure?",
-    text: "Once deleted, you will not be able to recover",
+    text: "Once loan is deleted, you will not be able to recover",
     icon: "warning",
     buttons: true,
     dangerMode: true

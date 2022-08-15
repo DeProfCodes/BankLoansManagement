@@ -20,31 +20,17 @@ namespace BankLoansManagement.Controllers
         // GET: UsersController
         public async Task<ActionResult> Index()
         {
-            var users = await _context.Users.ToListAsync();
-
-            var userVM = new UserViewModel { Users = users };
-
-            return View(userVM);
+            return View();
         }
         
-        // Search for user
         [HttpGet]
-        public async Task<IActionResult> Index(string searchString)
+        public async Task<IActionResult> GetAll()
         {
             var users = await _context.Users.ToListAsync();
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                users = users.Where(s => s.FirstName.ToLower().Contains(searchString.ToLower())).ToList();
-            }
-
-            var usersVM = new UserViewModel
-            {
-                Users = users
-            };
-
-            return View(usersVM);
+            
+            return Json(new { data = users });
         }
-        
+
         // GET: UsersController/Details/5
         public async Task<ActionResult> Details(int id)
         {
@@ -88,15 +74,10 @@ namespace BankLoansManagement.Controllers
         // POST: UsersController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, User newUserInfo)
+        public async Task<ActionResult> Edit(int id, User user)
         {
             try
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
-                user.FirstName = newUserInfo.FirstName;
-                user.LastName = newUserInfo.LastName;
-                user.IdNumber = newUserInfo.IdNumber;
-
                 _context.Update(user);
                 await _context.SaveChangesAsync();
 
@@ -108,17 +89,9 @@ namespace BankLoansManagement.Controllers
             }
         }
 
-        // GET: UsersController/Delete/5
-        public async Task<ActionResult> Delete(int id)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
-            return View(user);
-        }
-
         // POST: UsersController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Delete(int id, IFormCollection collection)
+        [HttpDelete]
+        public async Task<ActionResult> Delete(int id)
         {
             try
             {
@@ -127,11 +100,11 @@ namespace BankLoansManagement.Controllers
                 _context.Remove(user);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                return Json(new { success = true, message = "Delete successful" });
             }
             catch
             {
-                return View();
+                return Json(new { success = true, message = "Delete failed" });
             }
         }
     }

@@ -6,7 +6,7 @@ $(document).ready(function ()
   loadUsersDataTable();
 });
 
-function loadUsersDataTable()
+function loadUsersDataTable(filter)
 {
   dataTable = $('#DT_Users').DataTable({
     "ajax": {
@@ -30,6 +30,10 @@ function loadUsersDataTable()
                         <a class='btn btn-danger text-white' style='cursor:pointer; width:70px;'
                             onclick=DeleteUser('/Users/Delete?id='+${data})>
                             Delete
+                        </a>
+                        &nbsp;
+                        <a href="/Loans/Create?userId=${data}" class='btn btn-primary text-white' style='cursor:pointer; width:100px;'>
+                            Add Loan
                         </a>
                         </div>`;
         }, "width": "40%"

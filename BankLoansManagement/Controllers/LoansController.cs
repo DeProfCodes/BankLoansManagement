@@ -54,11 +54,43 @@ namespace BankLoansManagement.Controllers
             }
             return Json(new { data = userLoansVm });
         }
-       
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllFiltered(string loanType)
+        {
+            var loans = await _context.Loans.ToListAsync();
+
+            loans = loans.Where(l => l.Type.ToLower().Contains(loanType)).ToList();
+
+            var allUsers = await _context.Users.ToListAsync();
+
+            var userLoansVm = new List<UserLoanViewModel>();
+
+            foreach (var loan in loans)
+            {
+                var user = allUsers.FirstOrDefault(u => u.UserId == loan.UserId);
+                if (user != null)
+                {
+                    var userLoan = new UserLoanViewModel
+                    {
+                        LoanId = loan.Id,
+                        LoanAmount = loan.Amount,
+                        LoanInterestRate = loan.InterestRate,
+                        LoanType = loan.Type,
+                        LoanTotalAmount = loan.Total,
+                        ClientFirstName = user.FirstName,
+                        ClientLastName = user.LastName,
+                        ClientIdNumber = user.IdNumber
+                    };
+                    userLoansVm.Add(userLoan);
+                }
+            }
+            return Json(new { data = userLoansVm });
+        }
         // GET: LoansController/Details/5
         public async Task<ActionResult> Details(int id)
         {
-            var loan = await _context.Loans.FirstOrDefaultAsync(u=> u.Id==id);
+            var loan = await _context.Loans.FirstOrDefaultAsync(u => u.Id == id);
             return View(loan);
         }
 
@@ -104,15 +136,15 @@ namespace BankLoansManagement.Controllers
                     loan.UserId = (await _context.Users.FirstOrDefaultAsync(u => u.IdNumber == user.IdNumber)).UserId;
                 }
 
-                if(loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Personal))
+                if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Personal))
                 {
-                    loan.Total = loan.Amount + loan.Amount * 0.25; 
+                    loan.Total = loan.Amount + loan.Amount * 0.25;
                 }
-                else if(loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Home))
+                else if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Home))
                 {
                     loan.Total = loan.Amount + loan.Amount * 0.10;
                 }
-                else if(loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Vehicle))
+                else if (loan.Type == EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Vehicle))
                 {
                     loan.Total = loan.Amount + loan.Amount * 0.15;
                 }

@@ -20,26 +20,41 @@ namespace BankLoansManagement.Controllers
             _context = context;
         }
 
-        public async Task<ActionResult> Index()
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
         {
             var loans = await _context.Loans.ToListAsync();
             var allUsers = await _context.Users.ToListAsync();
 
             var userLoansVm = new List<UserLoanViewModel>();
 
-            foreach(var loan in loans)
+            foreach (var loan in loans)
             {
-                var userLoan = new UserLoanViewModel
+                var user = allUsers.FirstOrDefault(u => u.UserId == loan.UserId);
+                if (user != null)
                 {
-                    Loan = loan,
-                    User = allUsers.FirstOrDefault(u => u.UserId == loan.UserId)
-                };
-                userLoansVm.Add(userLoan);  
+                    var userLoan = new UserLoanViewModel
+                    {
+                        LoanId = loan.Id,
+                        LoanAmount = loan.Amount,
+                        LoanInterestRate = loan.InterestRate,
+                        LoanType = loan.Type,
+                        LoanTotalAmount = loan.Total,
+                        ClientFirstName = user.FirstName,
+                        ClientLastName = user.LastName,
+                        ClientIdNumber = user.IdNumber
+                    };
+                    userLoansVm.Add(userLoan);
+                }
             }
-            
-            return View(userLoansVm);
+            return Json(new { data = userLoansVm });
         }
-
+        /*
         // Search for loans
         [HttpGet]
         public async Task<IActionResult> Index(string searchString)
@@ -67,7 +82,7 @@ namespace BankLoansManagement.Controllers
 
             return View(userLoansVm);
         }
-
+        */
         // GET: LoansController/Details/5
         public async Task<ActionResult> Details(int id)
         {
@@ -79,11 +94,8 @@ namespace BankLoansManagement.Controllers
         public ActionResult Create(int userId)
         {
             var userLoan = new UserLoanViewModel
-            { 
-                User = new User
-                {
-                    UserId = userId
-                }
+            {
+                UserId = userId
             };
             return View(userLoan);
         }
@@ -95,12 +107,25 @@ namespace BankLoansManagement.Controllers
         {
             try
             {
-                var loan = newLoanApplication.Loan;
-                var user = newLoanApplication.User;
+                var loan = new Loan
+                {
+                    UserId = newLoanApplication.UserId,
+                    Amount = newLoanApplication.LoanAmount,
+                    InterestRate = newLoanApplication.LoanInterestRate,
+                    Term = newLoanApplication.LoanTerm,
+                    Type = newLoanApplication.LoanType
+                };
 
                 //New loan for new user => Create new user in db first
                 if (loan.UserId == -1)
                 {
+                    var user = new User
+                    {
+                        FirstName = newLoanApplication.ClientFirstName,
+                        LastName = newLoanApplication.ClientLastName,
+                        IdNumber = newLoanApplication.ClientIdNumber
+                    };
+
                     _context.Add(user);
                     await _context.SaveChangesAsync();
 

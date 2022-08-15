@@ -8,7 +8,10 @@
     <br />
     <h1>Users Management</h1>
     <br />
-    <input type="button" class="btn btn-success" value="Create new user" onclick="window.location='@Url.Action("Create", "Users")'"/>
+    <p>
+      <input type="button" class="btn btn-success" value="Create new user" onclick="window.location='@Url.Action("Create", "Users")'"/>
+      <input type="button" class="btn btn-primary" value="View Loans" onclick="window.location='@Url.Action("Index", "Loans")'" />
+    </p>
     <br />
     <br />
     <form asp-controller="Users" asp-action="Index" method="get">

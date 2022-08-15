@@ -12,48 +12,48 @@
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            @if(Model.User.UserId == -1)
+            @if(Model.UserId == -1)
             {
               <div class="form-group">
-                  <label asp-for="User.FirstName" class="control-label"></label>
-                  <input asp-for="User.FirstName" class="form-control" />
-                  <span asp-validation-for="User.FirstName" class="text-danger"></span>
+                  <label asp-for="ClientFirstName" class="control-label"></label>
+                  <input asp-for="ClientFirstName" class="form-control" />
+                  <span asp-validation-for="ClientFirstName" class="text-danger"></span>
               </div>
               <div class="form-group">
-                  <label asp-for="User.LastName" class="control-label"></label>
-                  <input asp-for="User.LastName" class="form-control" />
-                  <span asp-validation-for="User.LastName" class="text-danger"></span>
+                  <label asp-for="ClientLastName" class="control-label"></label>
+                  <input asp-for="ClientLastName" class="form-control" />
+                  <span asp-validation-for="ClientLastName" class="text-danger"></span>
               </div>
               <div class="form-group">
-                  <label asp-for="User.IdNumber" class="control-label"></label>
-                  <input asp-for="User.IdNumber" class="form-control" />
-                  <span asp-validation-for="User.IdNumber" class="text-danger"></span>
+                  <label asp-for="ClientIdNumber" class="control-label"></label>
+                  <input asp-for="ClientIdNumber" class="form-control" />
+                  <span asp-validation-for="ClientIdNumber" class="text-danger"></span>
               </div>
             }
-            <input asp-for="Loan.UserId" value="@Model.User.UserId" hidden/>
+            <input asp-for="UserId" value="@Model.UserId" hidden/>
             <div class="form-group">
-                <label asp-for="Loan.Amount" class="control-label"></label>
-                <input asp-for="Loan.Amount" class="form-control" />
-                <span asp-validation-for="Loan.Amount" class="text-danger"></span>
+                <label asp-for="LoanAmount" class="control-label"></label>
+                <input asp-for="LoanAmount" class="form-control" />
+                <span asp-validation-for="LoanAmount" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Loan.Term" class="control-label"></label>
-                <input asp-for="Loan.Term" class="form-control" />
-                <span asp-validation-for="Loan.Term" class="text-danger"></span>
+                <label asp-for="LoanTerm" class="control-label"></label>
+                <input asp-for="LoanTerm" class="form-control" />
+                <span asp-validation-for="LoanTerm" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Loan.InterestRate" class="control-label"></label>
-                <input asp-for="Loan.InterestRate" class="form-control" />
-                <span asp-validation-for="Loan.InterestRate" class="text-danger"></span>
+                <label asp-for="LoanInterestRate" class="control-label"></label>
+                <input asp-for="LoanInterestRate" class="form-control" />
+                <span asp-validation-for="LoanInterestRate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Loan.Type" class="control-label"></label>
-                <select asp-for="Loan.Type" class="form-control">
+                <label asp-for="LoanType" class="control-label"></label>
+                <select asp-for="LoanType" class="form-control">
                   <option id="@EnumsHelpers.LoanType.Personal">@EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Personal)</option>
                   <option id="@EnumsHelpers.LoanType.Vehicle">@EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Vehicle)</option>
                   <option id="@EnumsHelpers.LoanType.Home">@EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Home)</option>
                 </select>
-                <span asp-validation-for="Loan.Type" class="text-danger"></span>
+                <span asp-validation-for="LoanType" class="text-danger"></span>
             </div>
             @*<div class="form-group">
                 <label asp-for="Total" class="control-label"></label>

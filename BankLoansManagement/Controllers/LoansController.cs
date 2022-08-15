@@ -87,6 +87,24 @@ namespace BankLoansManagement.Controllers
             }
             return Json(new { data = userLoansVm });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTotals()
+        {
+            var loans = await _context.Loans.ToListAsync();
+            
+            var totals = loans.Sum(l => l.Total);
+            var amounts = loans.Sum(l => l.Amount);
+            var fees = totals - amounts;
+
+            var loanTotalsViewModel = new LoanTotalsVieweModel
+            {
+                LoanTotals = totals,
+                LoanFeesTotal = fees
+            };
+                
+            return Json(new { data = loanTotalsViewModel});
+        }
         // GET: LoansController/Details/5
         public async Task<ActionResult> Details(int id)
         {

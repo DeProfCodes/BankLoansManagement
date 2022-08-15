@@ -4,6 +4,7 @@ var dataTable;
 $(document).ready(function ()
 {
   loadDataTable();
+  LoadLoanTotals();
 
   $.fn.dataTable.ext.search.push(
     function (settings, searchData, index, rowData, counter)
@@ -45,10 +46,11 @@ function loadDataTable()
       { "data": "clientFirstName", "width": "12%" },
       { "data": "clientLastName", "width": "12%" },
       { "data": "clientIdNumber", "width": "12%" },
-      { "data": "loanAmount", "width": "12%" },
+      { "data": "loanAmount", "width": "12%", render: $.fn.dataTable.render.number(' ', ',', 2, 'R') },
       { "data": "loanType", "width": "12%" },
-      { "data": "loanInterestRate", "width": "12%" },
-      { "data": "loanTotalAmount", "width": "12%" },
+      {
+        "data": "loanInterestRate", "width": "12%"},/*, "render": function (data, type, row, meta) { return '' + data + '%'; }*/
+      { "data": "loanTotalAmount", "width": "12%", render: $.fn.dataTable.render.number(' ', ',', 2, 'R') },
       {
         "data": "loanId",
         "render": function (data)
@@ -69,9 +71,11 @@ function loadDataTable()
     "language": {
       "emptyTable": "no data found"
     },
-    "width": "100%"
+    "width": "100%",
+    columnDefs: [
+      { type: 'currency', targets: 0 }
+    ]
   });
-  console.log(dataTable);
 }
 
 function DeleteLoan(url)
@@ -105,3 +109,23 @@ function DeleteLoan(url)
     }
   });
 }
+
+
+function LoadLoanTotals()
+{
+  $.ajax({
+    type: "GET",
+    url: "/loans/gettotals",
+    datatype: "json",
+    success: function (res)
+    {
+      document.getElementById("totalFees").innerHTML = formatter.format(res.data.loanFeesTotal);
+      document.getElementById("loanTotals").innerHTML = formatter.format(res.data.loanTotals);
+    }
+  });
+}
+
+var formatter = new Intl.NumberFormat('en-ZA', {
+  style: 'currency',
+  currency: 'ZAR',
+});

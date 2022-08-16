@@ -134,7 +134,7 @@ namespace BankLoansManagement.Controllers
             {
                 total = loan.Amount + loan.Amount * 0.15;
             }
-            return total;
+            return Math.Round(total);
         }
 
         // POST: LoansController/Create
@@ -193,6 +193,8 @@ namespace BankLoansManagement.Controllers
             }
         }
 
+        
+
         // GET: LoansController/Edit/5
         public async Task<ActionResult> Edit(int id)
         {
@@ -250,6 +252,130 @@ namespace BankLoansManagement.Controllers
                 _logger.Log(LogLevel.Error, $"A loan of loanId={id} could not be deleted, error = {e.Message}", e);
 
                 return Json(new { success = true, message = "Delete failed" });
+            }
+        }
+
+
+
+
+        /*===========================================  STRICTLY FOR DEMO PURPOSE =========================================================*/
+        /*                                                                                                                                */
+        /*                                                                                                                                */
+        /*                                                                                                                                */
+        /*                                                                                                                                */
+
+        static Random random = new Random();
+        /* ============== Generate 10 random Users in case of attempting to generate new Loans without users in DB*/
+        public static string RandomString(int length, bool numbersOnly = false)
+        {
+            string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            if (numbersOnly)
+            {
+                chars = "0123456789";
+            }
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        // For DEMO purpose, create random 10 new users
+        public async Task<ActionResult> CreateRandomUsers()
+        {
+            try
+            {
+                var users = new List<User>();
+                for (int i = 0; i < 10; i++)
+                {
+                    var user = new User
+                    {
+                        FirstName = RandomString(random.Next(5, 10)),
+                        LastName = RandomString(random.Next(5, 10)),
+                        IdNumber = RandomString(13, true)
+                    };
+                    users.Add(user);
+                }
+                _context.AddRange(users);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception e)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+        }
+        /*========================== END OF GENERATE 10 Random Users=====================*/
+
+        // Get random userId to create loan for
+        private int GetRandomUserId(List<int> usersIds)
+        {
+            int index = random.Next(usersIds.Count);
+            return usersIds[index];
+        }
+
+        // Get random loan type
+        private string GetRandomLoanType()
+        {
+            var loanTypes = new List<string>()
+            {
+                EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Personal),
+                EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Vehicle),
+                EnumsHelpers.GetDisplayName(EnumsHelpers.LoanType.Home)
+            };
+            int index = random.Next(loanTypes.Count);
+            return loanTypes[index];
+        }
+
+        // For DEMO purpose, create new 10 loans random users
+        public async Task<ActionResult> CreateTenLoans()
+        {
+            try
+            {
+                var usersIds = await _context.Users.Select(u => u.UserId).ToListAsync();
+                if (usersIds.Count == 0)
+                {
+                    //Generate 10 users?
+                    await CreateRandomUsers();
+                    usersIds = await _context.Users.Select(u => u.UserId).ToListAsync();
+                }
+                if (usersIds.Count > 0)
+                {
+                    var userLoans = new List<Loan>();
+                    for (int i = 0; i < 10; i++)
+                    {
+                        var loan = new Loan
+                        {
+                            Amount = Math.Round(random.NextDouble() * random.Next(1, 100000), 2),
+                            InterestRate = Math.Round(random.NextDouble() * random.Next(1, 50), 2),
+                            Term = random.Next(5, 80),
+                            Type = GetRandomLoanType(),
+                            UserId = GetRandomUserId(usersIds)
+                        };
+                        loan.Total = GetLoanTotal(loan);
+                        userLoans.Add(loan);
+                    }
+                    _context.AddRange(userLoans);
+                    await _context.SaveChangesAsync();
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception e)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        public async Task<ActionResult> DeleteAllLoans()
+        {
+            try
+            {
+                var allLoans = await _context.Loans.ToListAsync();
+                _context.RemoveRange(allLoans);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return RedirectToAction(nameof(Index));
             }
         }
     }

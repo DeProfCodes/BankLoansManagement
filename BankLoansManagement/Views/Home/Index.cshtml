@@ -1,13 +1,61 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+  ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
+<div style="margin-left:-100px; background:lightgray">
+  <div class="text-center" style="padding:128px 16px; background:#2b6777; height:550px">
+    <h1 style="color: white">BANK LOANS MANAGEMENT APP</h1>
+    <p style="color:silver; font-weight:bold">By Proficient Mkansi</p>
+    <br />
+    <br />
+    <p style="color:yellow; font-weight:bold">Read More below</p>
+    <br />
+  </div>
   <br />
-  <input type="button" class="btn btn-primary" value="View Users" onclick="window.location='@Url.Action("Index", "Users")'" />
   <br />
-  <br />
-  <input type="button" class="btn btn-success" value="View Loans" onclick="window.location='@Url.Action("Index", "Loans")'" />
+  <div class="text-center">
+    <h1 style="color: teal">User Management</h1>
+        <br />
+        <div style="margin-left:10%; margin-right:10%">
+          <p>
+            A new user needs to be created first before a loan can be created for the user.
+            A user can be created from 'Users' menu navigation location, or by clicking the button below labelled 'View Users'.
+            View Users page is an <span style="font-weight:bold">ADMIN</span> page for User Managment, where users can be viewed, created, updated, or deleted (CRUD).
+            After User is created, there is an option to add loan to this user, which redirects to a page where a new loan can be creaetd for this user.
+            There is no limit to how many loans can be created for one user.
+            When a user is deleted, if the user had any loans, then the loans are also deleted from system  (In real life situation this user deletion would be prevented if there are outstanding loan amount to be settled :) ).
+            Users List in View Users page is implemented using DataTables, so can be filtered by search strings or sorted ascending or descending
+            New user can also be created from creating a new loan, if a loan is created without specifying a user from users table, then this is a new loan for a new user, and thus user details will be entered with the loan details, thus creating new user and then loan for this new user
+          </p>
+        </div>
+        <br />
+        <div class="text-center">
+          <input type="button" class="btn btn-primary" value="User Management" onclick="window.location='@Url.Action("Index", "Users")'" />
+        </div>
+        <br />
+        <hr />
+    </div>
+    <div class="text-center">
+      <h1 style="color: teal">Loans Management</h1>
+        <br />
+        <div style="margin-left:10%; margin-right:10%">
+          <p>
+            A new loan can be created from users table, where a certain existing user is selected for a loan to be created for.
+            A new loan can be creared without specifying an existing user, of which then a new user details will be prompted to create new user, then create new loan for this new user.
+            Loans List is made with DataTables, which has filter search box where you can filter loans by any text on the table, any column text search.
+            Additionally there are 3 checkboxes which filter loans list to only show loans of all check boxes.
+            Loans can be edited, or deleted. (For these action, in a full system, if I had more time for this, any change on the loan, an email would be sent to user owner of the loan in question)
+          </p>
+       </div>
+        <br />
+        <div class="text-center">
+          <input type="button" class="btn btn-success" value="Loans Management" onclick="window.location='@Url.Action("Index", "Loans")'" />
+        </div>
+        <br />
+        <br />
+    </div>
+  </div>
 
-</div>
+  <br />
+  <br />
 

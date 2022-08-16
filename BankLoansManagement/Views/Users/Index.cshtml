@@ -13,7 +13,14 @@
     </p>
     <br />
 </div>
-
+<hr />
+<div>
+  <h2>Quick DEMO Actions</h2>
+  <p> Create +10 of random user: <input type="button" class="btn btn-secondary" value="Generate 10 New Users" onclick="window.location='@Url.Action("CreateRandom", "Users")'"/>
+      <span></span> Quick LoansDB Clear : <input type="button" class="btn btn-danger" value="Delete All Users" onclick="window.location='@Url.Action("DeleteAllUsers", "Users")'"/>
+  </p>
+</div>
+<hr />
 <div class="row p-0 m-0">
   <div class="col-12 border p-3">
     <table id="DT_Users" class="table table-striped table-bordered" style="width:100%">

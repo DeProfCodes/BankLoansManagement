@@ -9,6 +9,7 @@ using BankLoansManagement.Models;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace BankLoansManagement.Controllers
 {
@@ -148,6 +149,91 @@ namespace BankLoansManagement.Controllers
                 _logger.Log(LogLevel.Error, $"Delete UserId = {id} failed, error = {e.Message}", e);
                 
                 return Json(new { success = true, message = "Delete failed, something went wrong" });
+            }
+        }
+
+
+
+
+
+
+
+        /*===========================================  STRICTLY FOR DEMO PURPOSE =========================================================*/
+        /*                                                                                                                                */
+        /*                                                                                                                                */
+        /*                                                                                                                                */
+        /*                                                                                                                                */
+
+
+        //For DEMO purpose, create random strings for firstNames and lastName
+        private static Random random = new Random();
+        public static string RandomString(int length, bool numbersOnly = false)
+        {
+            string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            if (numbersOnly)
+            {
+                chars = "0123456789";
+            }
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        // For DEMO purpose, create random 10 new users
+        public async Task<ActionResult> CreateRandom()
+        {
+            try
+            {
+                var users = new List<User>();
+                for (int i = 0; i < 10; i++)
+                {
+                    var user = new User
+                    {
+                        FirstName = RandomString(random.Next(5, 10)),
+                        LastName = RandomString(random.Next(5, 10)),
+                        IdNumber = RandomString(13, true)
+                    };
+                    users.Add(user);
+                }
+                _context.AddRange(users);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception e)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        public async Task<ActionResult> DeleteAllLoans()
+        {
+            try
+            {
+                var allLoans = await _context.Loans.ToListAsync();
+                _context.RemoveRange(allLoans);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return RedirectToAction(nameof(Index));
+            }
+        }
+        public async Task<ActionResult> DeleteAllUsers()
+        {
+            try
+            {
+                var allUsers = await _context.Users.ToListAsync();
+                _context.RemoveRange(allUsers);
+                await _context.SaveChangesAsync();
+
+                await DeleteAllLoans();
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return RedirectToAction(nameof(Index));
             }
         }
     }

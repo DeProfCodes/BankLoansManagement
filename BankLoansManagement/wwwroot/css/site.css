@@ -17,7 +17,10 @@ body
 .topnav 
 {
   overflow: hidden;
+  color: white;
+  cursor: pointer;
   background-color: #333;
+  padding-left:40%;
 }
 
 .topnav a 
@@ -44,9 +47,25 @@ body
 
 .topnav a:hover
 {
-  background-color: #555;
+  background-color: deepskyblue;
   color: white;
 }
+
+.topnav a:active
+{
+  background-color: silver;
+  color: white;
+}
+
+.cover
+{
+    width:200px;
+    height:500px;
+    background-color:#000000;
+    float:right;
+    overflow:auto;
+}
+
 
 @media (min-width: 768px) 
 {
@@ -58,6 +77,10 @@ body
 
 @media screen and (max-width: 600px) 
 {
+  .topnav
+  {
+    padding-left:0;
+  }
   .topnav a:not(:first-child) 
   {
     display: none;

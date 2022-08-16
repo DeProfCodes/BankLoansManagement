@@ -10,3 +10,11 @@ function ToggleMenu()
     x.className = "topnav";
   }
 }
+
+var scrolled = 0;
+
+function myScroll()
+{
+  console.log("WE HERE!");
+  $(document).scroll($(document).height());
+}

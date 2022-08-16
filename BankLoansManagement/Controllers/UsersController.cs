@@ -220,6 +220,8 @@ namespace BankLoansManagement.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+
+        [HttpPost]
         public async Task<ActionResult> DeleteAllUsers()
         {
             try

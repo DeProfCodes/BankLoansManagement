@@ -1,5 +1,5 @@
 ﻿
-var dataTable;
+var usersDataTable;
 
 $(document).ready(function ()
 {
@@ -8,7 +8,7 @@ $(document).ready(function ()
 
 function loadUsersDataTable(filter)
 {
-  dataTable = $('#DT_Users').DataTable({
+  usersDataTable = $('#DT_Users').DataTable({
     "ajax": {
       "url": "/users/getall/",
       "type": "GET",
@@ -66,7 +66,7 @@ function DeleteUser(url)
           if (data.success)
           {
             toastr.success(data.message);
-            dataTable.ajax.reload();
+            usersDataTable.ajax.reload();
           }
           else
           {

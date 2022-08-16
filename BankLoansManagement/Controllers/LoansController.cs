@@ -326,6 +326,7 @@ namespace BankLoansManagement.Controllers
         }
 
         // For DEMO purpose, create new 10 loans random users
+        [HttpPost]
         public async Task<ActionResult> CreateTenLoans()
         {
             try
@@ -364,6 +365,7 @@ namespace BankLoansManagement.Controllers
             }
         }
 
+        [HttpPost]
         public async Task<ActionResult> DeleteAllLoans()
         {
             try

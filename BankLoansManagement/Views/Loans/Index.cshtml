@@ -13,8 +13,8 @@
   <hr />
   <div style="text-align: start !important">
     <h2>Quick DEMO Actions</h2>
-    <p> Create +10 loans of random user: <input type="button" class="btn btn-secondary" value="Generate 10 loans" onclick="window.location='@Url.Action("CreateTenLoans", "Loans")'"/>
-        <span></span> Quick LoansDB Clear : <input type="button" class="btn btn-danger" value="Delete All Loans" onclick="window.location='@Url.Action("DeleteAllLoans", "Loans")'"/>
+    <p> Create +10 loans of random user: <input type="button" class="btn btn-secondary" value="Generate 10 loans" onclick="GenerateTenLoansForRandomUsers()"/>
+        <span></span> Quick LoansDB Clear : <input type="button" class="btn btn-danger" value="Delete All Loans" onclick="DeleteAllLoans()"/>
     </p>
   </div>
   <hr />
@@ -52,3 +52,4 @@
     </div>
   </div>
 </div>
+<div class="loader" id="loaderDiv" style="margin-top: -50%; margin-left: 50%"></div>

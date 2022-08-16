@@ -17,7 +17,7 @@
 <div>
   <h2>Quick DEMO Actions</h2>
   <p> Create +10 of random user: <input type="button" class="btn btn-secondary" value="Generate 10 New Users" onclick="GenerateRandomUsers()"/>
-      <span></span> Quick LoansDB Clear : <input type="button" class="btn btn-danger" value="Delete All Users" onclick="window.location='@Url.Action("DeleteAllUsers", "Users")'"/>
+      <span></span> Quick LoansDB Clear : <input type="button" class="btn btn-danger" value="Delete All Users" onclick="DeleteAllUsers()"/>
   </p>
 </div>
 <hr />
@@ -35,4 +35,4 @@
     </table>
   </div>
 </div>
-<div class="loader" id="loaderDiv"></div>
+<div class="loader" id="loaderDiv" style="margin-top: -50%; margin-left: 50%"></div>

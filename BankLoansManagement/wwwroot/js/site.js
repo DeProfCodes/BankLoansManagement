@@ -11,6 +11,8 @@ function ToggleMenu()
   }
 }
 
+$("#loaderDiv").hide();
+
 function GenerateRandomUsers()
 {
   swal({
@@ -18,7 +20,7 @@ function GenerateRandomUsers()
     text: "This will create 10 new users",
     icon: "warning",
     buttons: true,
-    dangerMode: true
+    dangerMode: false
   }).then((willCreate) =>
   {
     if (willCreate)
@@ -26,12 +28,18 @@ function GenerateRandomUsers()
       $.ajax({
         type: "POST",
         url: "/users/CreateRandom/",
+        beforeSend: function ()
+        {
+          $("#loaderDiv").show()
+          window.setTimeout($("#loaderDiv").show(), 5000);
+        },
         error: function (xhr, ajaxOptions, thrownError)
         {
           swal({ title: 'Failed', text: "Something went wrong, try again!", icon: 'error' });
         },
         success: function (data)
         {
+          $("#loaderDiv").hide();
           swal({ title: 'Complete', text: "Users generated", icon: 'success' });
           dataTable.ajax.reload();
         }

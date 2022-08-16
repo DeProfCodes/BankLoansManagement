@@ -31,7 +31,6 @@ function GenerateRandomUsers()
         beforeSend: function ()
         {
           $("#loaderDiv").show()
-          window.setTimeout($("#loaderDiv").show(), 5000);
         },
         error: function (xhr, ajaxOptions, thrownError)
         {
@@ -66,7 +65,6 @@ function DeleteAllUsers()
         beforeSend: function ()
         {
           $("#loaderDiv").show()
-          window.setTimeout($("#loaderDiv").show(), 5000);
         },
         error: function (xhr, ajaxOptions, thrownError)
         {
@@ -101,7 +99,6 @@ function GenerateTenLoansForRandomUsers()
         beforeSend: function ()
         {
           $("#loaderDiv").show()
-          window.setTimeout($("#loaderDiv").show(), 5000);
         },
         error: function (xhr, ajaxOptions, thrownError)
         {

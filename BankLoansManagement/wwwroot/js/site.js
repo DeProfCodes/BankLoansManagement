@@ -11,10 +11,31 @@ function ToggleMenu()
   }
 }
 
-var scrolled = 0;
-
-function myScroll()
+function GenerateRandomUsers()
 {
-  console.log("WE HERE!");
-  $(document).scroll($(document).height());
+  swal({
+    title: "Are you sure?",
+    text: "This will create 10 new users",
+    icon: "warning",
+    buttons: true,
+    dangerMode: true
+  }).then((willCreate) =>
+  {
+    if (willCreate)
+    {
+      $.ajax({
+        type: "POST",
+        url: "/users/CreateRandom/",
+        error: function (xhr, ajaxOptions, thrownError)
+        {
+          swal({ title: 'Failed', text: "Something went wrong, try again!", icon: 'error' });
+        },
+        success: function (data)
+        {
+          swal({ title: 'Complete', text: "Users generated", icon: 'success' });
+          dataTable.ajax.reload();
+        }
+      });
+    }
+  });
 }

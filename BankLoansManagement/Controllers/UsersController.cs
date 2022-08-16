@@ -179,6 +179,7 @@ namespace BankLoansManagement.Controllers
         }
 
         // For DEMO purpose, create random 10 new users
+        [HttpPost]
         public async Task<ActionResult> CreateRandom()
         {
             try
